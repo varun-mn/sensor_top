@@ -7,11 +7,24 @@ module dfe_top (
   sens_data,
   sens_data_val
 );
+
+
+//=====================================================
+// Internal clk and rst  , TODO : rst needs to be sync-ed  
+//=====================================================
 input clk;
 input rst;
+
+//=====================================================
+// Signals from/to I2C PAD 
+//=====================================================
 inout sda_pad_i;
 input scl_pad_i;
 output sda_pad_o;
+
+//=====================================================
+// Inputs from AFE 
+//=====================================================
 input sens_data_val;
 input [7:0] sens_data;
 
@@ -22,19 +35,26 @@ localparam FIFO_DEPTH = 64;
 localparam FIFO_ADDR_WIDTH = 6;  // log2(64)
 
 
+//=====================================================
+// Sync sda & scl to internal clock 
+//=====================================================
 sync_cells_2stage u_sda_sync(
   .async_in(sda_pad_i),
   .clk(clk),
   .rst_n(rst),
   .sync_out(sda_sync)
-)
+);
 
 sync_cells_2stage u_scl_sync(
   .async_in(scl_pad_i),
   .clk(clk),
   .rst_n(rst),
   .sync_out(scl_sync)
-)
+);
+
+//=====================================================
+// I2C slave inst 
+//=====================================================
 
 i2cSlaveTop u_i2cSlaveTop(
   .clk(clk),
@@ -43,6 +63,9 @@ i2cSlaveTop u_i2cSlaveTop(
   .scl(scl_sync)
 );
 
+//=====================================================
+// Buffer to hold data from sensor 
+//=====================================================
 streaming_fifo #(
     .DATA_WIDTH(FIFO_DATA_WIDTH),
     .DEPTH(FIFO_DEPTH),
