@@ -1,0 +1,15 @@
+@28
+tb_streaming_fifo.dut.clk
+tb_streaming_fifo.dut.rst_n
+tb_streaming_fifo.dut.rd_en
+tb_streaming_fifo.dut.wr_en
+tb_streaming_fifo.dut.empty
+tb_streaming_fifo.dut.full
+
+@25
+tb_streaming_fifo.dut.rd_ptr[1:0]
+tb_streaming_fifo.dut.wr_ptr[1:0]
+tb_streaming_fifo.dut.rd_data[7:0]
+tb_streaming_fifo.dut.wr_data[7:0]
+tb_streaming_fifo.dut.gap[3:0]
+
