@@ -1,7 +1,6 @@
 # sensor_top
-Repo for sensor rtl
 
-Digital front end for the sensor IC , communicates with AFE / I2C master and manages internal modes
+Digital front end for the sensor IC , communicates with AFE / I2C master and manages internal modes :
 * i2cSlaveTop            : communicates with master serially over sda/scl                           
 * registerInterface      : holds sensed data from sensor & config registers for AFE/DFE
 * currently supports 16 AFE config registers (address map 8'h00 to 8'h0F) 
@@ -15,7 +14,9 @@ To Do:
 * Reset sync    
 * Interrupt requests 
 
-                                                            
-*Author(s):                                                   
-Varun Nadiger
+Open Tools :
+* Icarus iverilog , gtkwave
 
+                                                            
+Author(s): 
+* Varun Nadiger , email : say.varun.mn@gmail.com 
