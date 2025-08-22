@@ -55,7 +55,7 @@
 `include "timescale.v"
 `include "i2cSlave_define.v"
 
-module serialInterface (clearStartStopDet, clk, dataIn, dataOut, regAddr, rst, scl, sdaIn, sdaOut, startStopDetState, writeEn);
+module serialInterface (clearStartStopDet, clk, dataIn, dataOut, regAddr, rst, scl, sdaIn, sdaOut, startStopDetState, writeEn, fifoRdEn);
 input   clk;
 input   [7:0]dataIn;
 input   rst;
@@ -67,6 +67,7 @@ output  [7:0]dataOut;
 output  [7:0]regAddr;
 output  sdaOut;
 output  writeEn;
+output  fifoRdEn;
 
 reg     clearStartStopDet, next_clearStartStopDet;
 wire    clk;
@@ -79,6 +80,7 @@ wire    sdaIn;
 reg     sdaOut, next_sdaOut;
 wire    [1:0]startStopDetState;
 reg     writeEn, next_writeEn;
+reg     fifoRdEn , next_fifoRdEn;
 
 // diagram signals declarations
 reg  [2:0]bitCnt, next_bitCnt;
@@ -105,6 +107,8 @@ reg  [7:0]txData, next_txData;
 `define WRITE_CLR_WR 4'b1110
 `define WRITE_CLR_ST_STOP 4'b1111
 
+`define SENSOR_ADDR 8'hF1
+
 reg [3:0]CurrState_SISt, NextState_SISt;
 
 // Diagram actions (continuous assignments allowed only: assign ...)
@@ -127,6 +131,7 @@ begin
   next_bitCnt <= bitCnt;
   next_clearStartStopDet <= clearStartStopDet;
   next_regAddr <= regAddr;
+  next_fifoRdEn <= fifoRdEn;
   case (CurrState_SISt)  // synopsys parallel_case full_case
     `START:
     begin
@@ -139,6 +144,7 @@ begin
       next_bitCnt <= 3'b000;
       next_clearStartStopDet <= 1'b0;
       NextState_SISt <= `CHK_RD_WR;
+      next_fifoRdEn <= 1'b0;
     end
     `CHK_RD_WR:
     begin
@@ -146,7 +152,15 @@ begin
       begin
         NextState_SISt <= `READ_RD_LOOP;
         next_txData <= dataIn;
-        next_regAddr <= regAddr + 1'b1;
+        next_fifoRdEn <= 1'b1;
+        if (fifoRdEn == 1'b1) begin
+         next_fifoRdEn <= 1'b0;
+        end
+        if (regAddr == `SENSOR_ADDR) begin
+         next_regAddr <= regAddr;
+        end else begin
+         next_regAddr <= regAddr + 1'b1;
+        end
         next_bitCnt <= 3'b001;
       end
       else
@@ -347,6 +361,7 @@ begin
     txData <= 8'h00;
     rxData <= 8'h00;
     bitCnt <= 3'b000;
+    fifoRdEn <= 1'b0;
   end
   else 
   begin

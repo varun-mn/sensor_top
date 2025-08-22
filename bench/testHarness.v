@@ -7,6 +7,7 @@ reg rst;
 reg clk; 
 reg i2cHostClk;
 wire sda;
+wire sda_from_dfe;
 wire scl;
 wire sdaOutEn;
 wire sdaOut;
@@ -24,18 +25,55 @@ wire scl_padoen_o;
 wire sda_pad_i;
 wire sda_pad_o;
 wire sda_padoen_o;
+  
+reg sens_data_i_val;
+reg [7:0] sens_data_i;
+wire [7:0] cfgReg0;
+wire [7:0] cfgReg1;
+wire [7:0] cfgReg2;
+wire [7:0] cfgReg3;
+wire [7:0] cfgReg4;
+wire [7:0] cfgReg5;
+wire [7:0] cfgReg6;
+wire [7:0] cfgReg7;
+wire [7:0] cfgReg8;
+wire [7:0] cfgReg9;
+wire [7:0] cfgReg10;
+wire [7:0] cfgReg11;
+wire [7:0] cfgReg12;
+wire [7:0] cfgReg13;
+wire [7:0] cfgReg14;
+wire [7:0] cfgReg15;
 
 initial begin
 $dumpfile("wave.vcd");
 $dumpvars(0, testHarness); 
 end
 
-
-i2cSlave u_i2cSlave(
+dfe_top u_dfe_top (
   .clk(clk),
   .rst(rst),
-  .sda(sda),
-  .scl(scl)
+  .sda_pad_i(sda),
+  .sda_pad_o(sda_from_dfe),
+  .scl_pad_i(scl),
+  .sens_data_i(sens_data_i),
+  .sens_data_i_val(sens_data_i_val),
+  .cfgReg0(cfgReg0),
+  .cfgReg1(cfgReg1),
+  .cfgReg2(cfgReg2),
+  .cfgReg3(cfgReg3),
+  .cfgReg4(cfgReg4),
+  .cfgReg5(cfgReg5),
+  .cfgReg6(cfgReg6),
+  .cfgReg7(cfgReg7),
+  .cfgReg8(cfgReg8),
+  .cfgReg9(cfgReg9),
+  .cfgReg10(cfgReg10),
+  .cfgReg11(cfgReg11),
+  .cfgReg12(cfgReg12),
+  .cfgReg13(cfgReg13),
+  .cfgReg14(cfgReg14),
+  .cfgReg15(cfgReg15)
 );
 
 i2c_master_top #(.ARST_LVL(1'b1)) u_i2c_master_top (
@@ -53,7 +91,7 @@ i2c_master_top #(.ARST_LVL(1'b1)) u_i2c_master_top (
   .scl_pad_i(scl_pad_i),
   .scl_pad_o(scl_pad_o),
   .scl_padoen_o(scl_padoen_o),
-  .sda_pad_i(sda_pad_i),
+  .sda_pad_i(sda_from_dfe),
   .sda_pad_o(sda_pad_o),
   .sda_padoen_o(sda_padoen_o)
 );
@@ -105,6 +143,24 @@ begin
   @(posedge clk);
   @(posedge clk);
   @(posedge clk);
+end
+endtask
+
+// ******************************  sensor write ****************************** 
+initial
+    begin
+sens_data_i = 0;
+sens_data_i_val = 0;
+end
+
+
+task sensor_write(input [7:0]d);
+begin
+    sens_data_i = d;
+    sens_data_i_val = 1'b1;
+
+    # 50
+    sens_data_i_val = 1'b0;
 end
 endtask
 

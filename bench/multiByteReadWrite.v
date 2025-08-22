@@ -93,10 +93,11 @@ begin
   data = readData; 
   if (data != expectedData) begin
     $write("***** I2C Read ERROR: At 0x%0x. Expected 0x%0x, got 0x%0x\n", regAddr, expectedData, data);
-    $stop;
+    //$stop;
   end
   else
-    $write("I2C Read: At [0x%0x] = 0x%0x\n", regAddr, data);
+    $write("I2C Read                : At [0x%0x] = 0x%0x\n", regAddr, data);
+    $write("Success , Expected Data : At [0x%0x] = 0x%0x\n", regAddr, expectedData);
 end
 endtask
 
