@@ -80,7 +80,7 @@ wire    sdaIn;
 reg     sdaOut, next_sdaOut;
 wire    [1:0]startStopDetState;
 reg     writeEn, next_writeEn;
-reg     fifoRdEn , next_fifoRdEn;
+reg     fifoRdEn , next_fifoRdEn , fifoRdEn_trigger;
 
 // diagram signals declarations
 reg  [2:0]bitCnt, next_bitCnt;
@@ -131,7 +131,7 @@ begin
   next_bitCnt <= bitCnt;
   next_clearStartStopDet <= clearStartStopDet;
   next_regAddr <= regAddr;
-  next_fifoRdEn <= fifoRdEn;
+  //next_fifoRdEn <= fifoRdEn;
   case (CurrState_SISt)  // synopsys parallel_case full_case
     `START:
     begin
@@ -144,7 +144,8 @@ begin
       next_bitCnt <= 3'b000;
       next_clearStartStopDet <= 1'b0;
       NextState_SISt <= `CHK_RD_WR;
-      next_fifoRdEn <= 1'b0;
+      //next_fifoRdEn <= 1'b0;
+      fifoRdEn_trigger <= 1'b0;
     end
     `CHK_RD_WR:
     begin
@@ -152,10 +153,8 @@ begin
       begin
         NextState_SISt <= `READ_RD_LOOP;
         next_txData <= dataIn;
-        next_fifoRdEn <= 1'b1;
-        if (fifoRdEn == 1'b1) begin
-         next_fifoRdEn <= 1'b0;
-        end
+        //next_fifoRdEn <= 1'b1;
+        fifoRdEn_trigger <= 1'b1;
         if (regAddr == `SENSOR_ADDR) begin
          next_regAddr <= regAddr;
         end else begin
@@ -346,6 +345,12 @@ begin
   else
     CurrState_SISt <= NextState_SISt;
 end
+        
+always @ (posedge clk) begin
+ if (fifoRdEn_trigger) begin
+      fifoRdEn_trigger <= 1'b0;
+ end 
+end
 
 // Registered outputs logic
 always @ (posedge clk)
@@ -374,6 +379,8 @@ begin
     txData <= next_txData;
     rxData <= next_rxData;
     bitCnt <= next_bitCnt;
+    //fifoRdEn <= next_fifoRdEn;
+    fifoRdEn <= fifoRdEn_trigger;
   end
 end
 

@@ -90,7 +90,8 @@ reg [7:0] wr_data_reg;
 reg wr_en_reg ;
 
 wire sda_sync , scl_sync;
-reg [7:0] rd_data_reg;
+//reg [7:0] rd_data_reg;
+wire [7:0] fifo_rd_data;
 wire [7:0] rd_data;
 wire empty,full;
 reg rd_en_reg;
@@ -180,7 +181,7 @@ registerInterface u_registerInterface(
 
 // Read latest sensor value
 wire [7:0] sens_data_decoded;
-assign sens_data_decoded = (!sens_mode[0] && sens_mode[1]) ? sens_data_shadow : rd_data_reg;
+assign sens_data_decoded = (!sens_mode[0] && sens_mode[1]) ? sens_data_shadow : fifo_rd_data;
 
 
 // Streamout buffer 
@@ -188,15 +189,15 @@ assign sens_data_decoded = (!sens_mode[0] && sens_mode[1]) ? sens_data_shadow : 
 //  assign sens_data_decoded = rd_data_reg; 
 //end
 
-always @(posedge clk) begin
-  if (!rst_n) begin
-    rd_data_reg <= {8{1'b0}};
-    rd_en_reg <= 1'b0;
-  end else if (!sens_mode[0] && !sens_mode[1] && sens_mode[2] ) begin
-    rd_en_reg <= fifo_rd_en;
-    rd_data_reg <= rd_data;
-  end
-end
+// always @(posedge clk) begin
+//   if (!rst_n) begin
+//     rd_data_reg <= {8{1'b0}};
+//     rd_en_reg <= 1'b0;
+//   end else if (!sens_mode[0] && !sens_mode[1] && sens_mode[2] ) begin
+//     rd_en_reg <= fifo_rd_en;
+//     rd_data_reg <= rd_data;
+//   end
+// end
 //assign rd_data_reg = rd_data;
 
 
@@ -247,8 +248,10 @@ streaming_fifo #(
     .rst_n(rst_n),
     .wr_en(wr_en_reg),
     .wr_data(wr_data_reg),
-    .rd_en(rd_en_reg),
-    .rd_data(rd_data),
+    //.rd_en(rd_en_reg),
+    .rd_en(fifo_rd_en),
+    //.rd_data(rd_data),
+    .rd_data(fifo_rd_data),
     .full(full),
     .empty(empty)
 );

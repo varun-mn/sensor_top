@@ -12,6 +12,7 @@ reg [7:0] dataRead;
 reg [7:0] dataWrite;
 integer i;
 integer j;
+reg [7:0] sensor_values [0:9];
 
 initial
 begin
@@ -40,25 +41,37 @@ begin
   
 
   // Sensor writes data
-  multiByteReadWrite.write({`I2C_ADDRESS, 1'b0}, 8'hF0, 8'h0A, `SEND_STOP);
   $write("# ----- Testing sensor read/write -----#\n");
+  $write("# ----- Configure sens_mode register to read latest sensed value-----#\n");
+  multiByteReadWrite.write({`I2C_ADDRESS, 1'b0}, 8'hF0, 8'h0A, `SEND_STOP);
   $write("# Sensor writing data\n");
-  #10000
-  testHarness.sensor_write(8'hAB);
-  #10000
-  testHarness.sensor_write(8'hCD);
-  #10000
-  testHarness.sensor_write(8'hEF);
-  #10000
-  testHarness.sensor_write(8'hFA);
-  #10000
-  testHarness.sensor_write(8'hED);
-  #10000
-  testHarness.sensor_write(8'hCB);
-  #10000
-  $write("# Reading latest sensed value .. \n");
-  multiByteReadWrite.read({`I2C_ADDRESS, 1'b0}, 8'hF1, 8'hCB, dataWord, `NULL);
+  sensor_values[0] = 8'hAB;
+  sensor_values[1] = 8'hCD;
+  sensor_values[2] = 8'hEF;
+  sensor_values[3] = 8'hFA;
+  sensor_values[4] = 8'hED;
+  sensor_values[5] = 8'hCB;
+  sensor_values[6] = 8'hAA;
+  sensor_values[7] = 8'hBB;
+  sensor_values[8] = 8'hCC;
+  sensor_values[9] = 8'hDD;
 
+ for (i = 0; i < 10; i = i + 1) begin
+    #1000;
+    testHarness.sensor_write(sensor_values[i]);
+  end
+
+  #1000
+  $write("# Reading latest sensed value .. \n");
+  multiByteReadWrite.read({`I2C_ADDRESS, 1'b0}, 8'hF1, 8'hDD, dataWord, `NULL);
+
+  #1000
+  $write("# ----- Configure sens_mode register to stream the buffer -----#\n");
+  multiByteReadWrite.write({`I2C_ADDRESS, 1'b0}, 8'hF0, 8'h0C, `SEND_STOP);
+  #1000
+  $write("# stream out buffer .. \n");
+  multiByteReadWrite.read_stream({`I2C_ADDRESS, 1'b0}, 8'hF1, dataWord,`NULL,10);
+  
   $write("Finished all tests\n");
   $stop;	
 

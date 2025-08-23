@@ -11,12 +11,19 @@ Digital front end for the sensor IC , communicates with AFE / I2C master and man
 
 To Do:                                                       
 * Parametrise hardcoded values for registers and memory map.
-* Reset sync    
-* Interrupt requests 
+* Reset sync
+* Interrupt requests
 
 Open Tools :
 * Icarus iverilog , gtkwave
 
+Simulation:
+* testbench : bench/testCase_sens_config_read.v
+* sim       : sim/build_dfe.tcl
+	* 1. Write to config registers. 
+	* 2. Read from config registers.
+	* 3. Configure & read latest sensed values  
+	* 4. Configure & stream out buffer. 
                                                             
 Author(s): 
 * Varun Nadiger , email : say.varun.mn@gmail.com 
