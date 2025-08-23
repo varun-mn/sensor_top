@@ -20,10 +20,10 @@ Open Tools :
 Simulation:
 * testbench : bench/testCase_sens_config_read.v
 * sim       : sim/build_dfe.tcl
-	* 1. Write to config registers. 
-	* 2. Read from config registers.
-	* 3. Configure & read latest sensed values  
-	* 4. Configure & stream out buffer. 
+	* 1. I2C Write to config registers. 
+	* 2. I2C Read from config registers.
+	* 3. I2C master config sens_mode register & read latest sensed values.
+	* 4. I2C master config sens_mode register & stream out buffer.
                                                             
 Author(s): 
 * Varun Nadiger , email : say.varun.mn@gmail.com 
